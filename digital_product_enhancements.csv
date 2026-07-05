@@ -1,0 +1,27 @@
+project_name,category,engineering_effort,design_effort,impact_score
+Simplify checkout flow,Checkout,4.5,3.0,8.5
+Add dark mode,Loyalty,3.0,5.5,4.0
+Redesign onboarding flow,Navigation,6.0,7.5,9.0
+Add skeleton loading screens,Navigation,2.0,2.5,5.5
+Implement AI-powered search,Navigation,9.0,6.0,8.0
+Add breadcrumb navigation,Navigation,1.5,1.5,3.0
+Personalized product recommendations,Loyalty,8.5,5.0,8.5
+Redesign empty states,Checkout,2.0,4.0,4.5
+One-click reorder,Checkout,3.5,2.0,7.5
+Multi-factor authentication,Security,6.5,3.0,6.0
+In-app chat support,Loyalty,7.0,5.5,7.0
+Redesign settings page,Security,3.0,6.0,3.5
+Progressive web app support,Navigation,8.0,3.5,6.5
+Add tooltips for new features,Navigation,1.0,2.0,3.0
+Revamp mobile navigation,Navigation,5.5,7.0,7.5
+Accessibility audit and fixes,Security,5.0,4.5,6.0
+Guest checkout option,Checkout,2.5,1.5,7.0
+Gamified loyalty program,Loyalty,8.5,8.0,7.5
+Redesign error messages,Navigation,1.5,2.5,4.0
+Real-time order tracking,Checkout,7.5,4.0,8.0
+Rebuild checkout on new payment platform,Checkout,8.5,3.0,3.0
+Implement blockchain-based loyalty points,Loyalty,9.0,4.0,2.0
+Build custom SSO for enterprise compliance,Security,8.0,2.0,2.5
+Add advanced search filters with 20+ facets,Navigation,7.5,5.0,3.0
+Migrate legacy settings page to new design system,Security,6.5,6.5,2.5
+Rearchitect internal admin dashboard,Navigation,8.5,4.5,2.0

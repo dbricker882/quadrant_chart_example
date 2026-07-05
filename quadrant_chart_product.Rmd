@@ -1,0 +1,79 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+ 
+# Read in data and packages
+```{r}
+library(tidyverse)
+
+
+product <- read.csv("C:/Users/brick/OneDrive/Documents/saga/blog/quadrant_chart_example/digital_product_enhancements.csv")
+
+colnames(product)
+```
+
+# Plot
+```{r}
+library(ggrepel)
+library(MetBrewer)
+
+quad <- product |> 
+  ggplot(
+    aes(
+      x = engineering_effort,
+      y = impact_score
+      )
+    ) +
+  geom_text_repel(aes(label = project_name,
+                      color = category)) +
+  geom_point(
+    aes(size = design_effort,
+        color = category),
+    show.legend = FALSE) +
+  geom_hline(yintercept = 5,
+             color = "white") +
+  geom_vline(xintercept = 5,
+             color = "white") +
+  scale_x_continuous(limits = c(0,10), 
+                     breaks = seq(0,10,1)) +
+  scale_y_continuous(limits = c(0,10), 
+                     breaks = seq(0,10,1)) +
+  scale_size_continuous(range = c(2, 14)) +
+  guides(
+    color = guide_legend(
+      override.aes = list(label = sort(unique(product$category)), size = 6))
+    ) +
+  scale_color_manual(values = c(
+  "Checkout"   = "#eba487",
+  "Navigation" = "#9cec86",
+  "Loyalty"    = "#86cfec",
+  "Security"   = "#d686ec")
+  ) +
+  labs(
+    color = "Project Category: "
+  ) +
+  theme(
+    panel.background = element_rect(fill = "#1a1c2e", color = NA),
+    plot.background  = element_rect(fill = "#1a1c2e", color = NA),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line.x.top = element_line(color = "white"),
+    axis.text = element_text(color = "white"),          # otherwise invisible on black
+    axis.title = element_text(color = "white"),
+    legend.position = "bottom",
+    legend.background = element_rect(fill = "#1a1c2e", color = NA),
+    legend.key = element_rect(fill = "#1a1c2e", color = NA),
+    legend.text = element_blank(),                      # hide the plain-text label...
+    legend.title = element_text(color = "white", 
+                                size = 18)                       # ...since override.aes now shows the colored word instead
+  )
+    
+
+quad
+
+```
+
