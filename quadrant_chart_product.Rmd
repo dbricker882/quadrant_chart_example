@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Quadrant Chart"
 output: html_notebook
 editor_options: 
   chunk_output_type: console
@@ -124,7 +124,6 @@ quad <- product |>
              color = "#ffffff", 
              stroke = 0.4, 
              alpha = 0.7,
-             # show.legend = c(size = TRUE, fill = FALSE)
              ) +
   # --- Labels with cleaner repel behavior ---
   geom_text_repel(
@@ -135,19 +134,20 @@ quad <- product |>
     segment.color = subtext_color, 
     segment.size = 0.3,
     box.padding = 0.6, 
-    point.padding = 0.6,
+    point.padding = 2,
     max.overlaps = Inf, 
     show.legend = FALSE) +
   scale_x_continuous(limits = c(0, 10), 
                      breaks = seq(0, 10, 2),
-                      expand = c(0, 0)) +
+                     expand = c(0, 0)) +
   scale_y_continuous(limits = c(0, 10), 
                      breaks = seq(0, 10, 2),
-                      expand = c(0, 0)) +
+                     expand = c(0, 0)) +
   scale_size_continuous(name = "Design Effort", 
                         range = c(3, 16),
                         breaks = c(2, 5, 8)) +
-  scale_color_manual(values = label_palette, guide = "none") +
+  scale_color_manual(values = label_palette, 
+                     guide = "none") +
   scale_fill_manual(values = palette,
                     name = "Project Category") +
   guides(
@@ -155,11 +155,6 @@ quad <- product |>
       override.aes = list(fill = subtext_color, color = "white"),
       order = 1
     ),
-    # color = guide_legend(
-    #   label = FALSE,
-    #   override.aes = list(label = sort(unique(product$category)), size = 6),
-    #   order = 2
-    # )
     fill = guide_legend(
       override.aes = list(size = 5, color = "white"),
       order = 2
@@ -207,9 +202,9 @@ quad
 # Save at high resolution
 ```{r}
 ggsave(
-  "quadrant_chart_polished.png",
+  "quadrant_chart_image.png",
   plot = quad,
-  width = 12, height = 8.5, dpi = 150,
+  width = 15, height = 10, dpi = 120,
   device = ragg::agg_png
 )
 ```
