@@ -5,75 +5,211 @@ editor_options:
   chunk_output_type: console
 ---
 
- 
-# Read in data and packages
+# Packages
 ```{r}
 library(tidyverse)
+library(ggrepel)
+library(showtext)   # custom fonts
+library(ragg)       # crisp text rendering when saving
 
+# Pull in a clean, professional Google font
+font_add_google("Manrope", "manrope")
+showtext_auto()
+showtext_opts(dpi = 300)
+```
 
-product <- read.csv("C:/Users/brick/OneDrive/Documents/saga/blog/quadrant_chart_example/digital_product_enhancements.csv")
-
+# Read in data
+```{r}
+product <- read.csv("digital_product_enhancements.csv")
 colnames(product)
 ```
 
 # Plot
 ```{r}
-library(ggrepel)
-library(MetBrewer)
+palette <- c(
+  "Checkout"   = "#f2a679",
+  "Navigation" = "#8fe0a0",
+  "Loyalty"    = "#7fc9f0",
+  "Security"   = "#d38fe8"
+)
 
-quad <- product |> 
-  ggplot(
-    aes(
-      x = engineering_effort,
-      y = impact_score
-      )
-    ) +
-  geom_text_repel(aes(label = project_name,
-                      color = category)) +
-  geom_point(
-    aes(size = design_effort,
-        color = category),
+darken <- function(hex, factor = 0.6) {
+  rgb_vals <- grDevices::col2rgb(hex) * factor
+  grDevices::rgb(rgb_vals[1, ], rgb_vals[2, ], rgb_vals[3, ], maxColorValue = 255)
+}
+
+label_palette <- setNames(darken(palette, factor = 1), names(palette))
+
+bg_color      <- "#0b0b12"  
+panel_color   <- "#1c1c2b"  
+grid_color    <- "#3a3a52"  
+text_color    <- "#f2f2f5"
+subtext_color <- "#a9a9bd"
+
+quad <- product |>
+  ggplot(aes(x = engineering_effort, y = impact_score)) +
+  # --- Quadrant background shading
+  annotate("rect", 
+           xmin = 0, 
+           xmax = 5, 
+           ymin = 5, 
+           ymax = 10,
+           fill = "#ffffff", 
+           alpha = 0.1) +   # Quick Wins
+  annotate("rect", 
+           xmin = 5, 
+           xmax = 10,
+           ymin = 5, 
+           ymax = 10,
+           fill = "#ffffff", 
+           alpha = 0.15) +    # Major Projects
+    annotate("rect", 
+           xmin = 0, 
+           xmax = 5,
+           ymin = 0, 
+           ymax = 5,
+           fill = "#ffffff", 
+           alpha = 0.2) +    # Fill-Ins
+  annotate("rect", 
+           xmin = 5, 
+           xmax = 10,
+           ymin = 0,
+           ymax = 5,
+           fill = "#ffffff", 
+           alpha = 0.25) +    # Reassess
+  # --- Quadrant labels ---
+  annotate("text", 
+           x = 0.3, 
+           y = 9.6, 
+           label = "QUICK WINS",
+           hjust = 0, 
+           color = subtext_color, 
+           family = "manrope",
+           size = 3.4, 
+           fontface = "bold") +
+  annotate("text", 
+           x = 9.7, 
+           y = 9.6, 
+           label = "MAJOR PROJECTS",
+           hjust = 1, 
+           color = subtext_color, 
+           family = "manrope",
+           size = 3.4, 
+           fontface = "bold") +
+  annotate("text", 
+           x = 0.3, 
+           y = 0.5, 
+           label = "FILL-INS",
+           hjust = 0, 
+           color = subtext_color, 
+           family = "manrope",
+           size = 3.4, 
+           fontface = "bold") +
+  annotate("text", 
+           x = 9.7, 
+           y = 0.5, 
+           label = "REASSESS",
+           hjust = 1, 
+           color = subtext_color, 
+           family = "manrope",
+           size = 3.4, 
+           fontface = "bold") +
+  # --- Quadrant divider lines ---
+  geom_hline(yintercept = 5, color = grid_color, linewidth = 0.6) +
+  geom_vline(xintercept = 5, color = grid_color, linewidth = 0.6) +
+  # --- Data points with a white stroke so they lift off the dark bg ---
+  geom_point(aes(size = design_effort, 
+                 fill = category),
+             shape = 21, 
+             color = "#ffffff", 
+             stroke = 0.4, 
+             alpha = 0.7,
+             # show.legend = c(size = TRUE, fill = FALSE)
+             ) +
+  # --- Labels with cleaner repel behavior ---
+  geom_text_repel(
+    aes(label = project_name, color = category),
+    family = "manrope", 
+    fontface = "bold", 
+    size = 1.5,
+    segment.color = subtext_color, 
+    segment.size = 0.3,
+    box.padding = 0.6, 
+    point.padding = 0.6,
+    max.overlaps = Inf, 
     show.legend = FALSE) +
-  geom_hline(yintercept = 5,
-             color = "white") +
-  geom_vline(xintercept = 5,
-             color = "white") +
-  scale_x_continuous(limits = c(0,10), 
-                     breaks = seq(0,10,1)) +
-  scale_y_continuous(limits = c(0,10), 
-                     breaks = seq(0,10,1)) +
-  scale_size_continuous(range = c(2, 14)) +
+  scale_x_continuous(limits = c(0, 10), 
+                     breaks = seq(0, 10, 2),
+                      expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 10), 
+                     breaks = seq(0, 10, 2),
+                      expand = c(0, 0)) +
+  scale_size_continuous(name = "Design Effort", 
+                        range = c(3, 16),
+                        breaks = c(2, 5, 8)) +
+  scale_color_manual(values = label_palette, guide = "none") +
+  scale_fill_manual(values = palette,
+                    name = "Project Category") +
   guides(
-    color = guide_legend(
-      override.aes = list(label = sort(unique(product$category)), size = 6))
-    ) +
-  scale_color_manual(values = c(
-  "Checkout"   = "#eba487",
-  "Navigation" = "#9cec86",
-  "Loyalty"    = "#86cfec",
-  "Security"   = "#d686ec")
+    size = guide_legend(
+      override.aes = list(fill = subtext_color, color = "white"),
+      order = 1
+    ),
+    # color = guide_legend(
+    #   label = FALSE,
+    #   override.aes = list(label = sort(unique(product$category)), size = 6),
+    #   order = 2
+    # )
+    fill = guide_legend(
+      override.aes = list(size = 5, color = "white"),
+      order = 2
+    )
   ) +
+
   labs(
-    color = "Project Category: "
+    title = "Effort vs. Impact: Roadmap Prioritization",
+    subtitle = "Bubble size = design effort  ·  Color = project category",
+    x = "Engineering Effort",
+    y = "Impact Score",
+    caption = "Effort and impact are directional estimates from early-stage roadmap discussions, not modeled outputs.",
+    color = "Category: "
   ) +
+
+  theme_minimal(base_family = "manrope") +
   theme(
-    panel.background = element_rect(fill = "#1a1c2e", color = NA),
-    plot.background  = element_rect(fill = "#1a1c2e", color = NA),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    axis.line.x.top = element_line(color = "white"),
-    axis.text = element_text(color = "white"),          # otherwise invisible on black
-    axis.title = element_text(color = "white"),
-    legend.position = "bottom",
-    legend.background = element_rect(fill = "#1a1c2e", color = NA),
-    legend.key = element_rect(fill = "#1a1c2e", color = NA),
-    legend.text = element_blank(),                      # hide the plain-text label...
-    legend.title = element_text(color = "white", 
-                                size = 18)                       # ...since override.aes now shows the colored word instead
+    plot.background   = element_rect(fill = bg_color, color = NA),
+    panel.background  = element_rect(fill = panel_color, color = NA),
+    panel.border      = element_rect(color = grid_color, linewidth = 0.6, fill = NA),
+    panel.grid.major  = element_line(color = grid_color, linewidth = 0.25, linetype = "dotted"),
+    panel.grid.minor  = element_blank(),
+
+    plot.title    = element_text(color = text_color, face = "bold", size = 20, margin = margin(b = 4)),
+    plot.subtitle = element_text(color = subtext_color, size = 12, margin = margin(b = 14)),
+    plot.caption  = element_text(color = subtext_color, size = 8.5, hjust = 0, margin = margin(t = 12)),
+
+    axis.title = element_text(color = subtext_color, size = 11),
+    axis.text  = element_text(color = subtext_color, size = 9),
+    axis.ticks = element_blank(),
+
+    legend.position    = "bottom",
+    legend.background  = element_rect(fill = bg_color, color = NA),
+    legend.key         = element_rect(fill = panel_color, color = NA),
+    legend.title       = element_text(color = text_color, size = 10, face = "bold"),
+    legend.text        = element_text(color = text_color, size = 10),
+    legend.box         = "vertical",
+
+    plot.margin = margin(t = 20, r = 24, b = 16, l = 20)
   )
-    
 
 quad
-
 ```
 
+# Save at high resolution
+```{r}
+ggsave(
+  "quadrant_chart_polished.png",
+  plot = quad,
+  width = 12, height = 8.5, dpi = 150,
+  device = ragg::agg_png
+)
+```
